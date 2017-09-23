@@ -6,8 +6,8 @@ public class Movement : MonoBehaviour {
 	public GameObject baseProjectile;
 	public Transform gunRight;
 	public Transform trans;
-	public Inventory2 inventory;
-	public Canvas inventoryGUI;
+	//public Inventory2 inventory;
+	//public Canvas inventoryGUI;
 	public float startHeight;
 	public float gravity;
 	public float stepSize;
@@ -25,10 +25,12 @@ public class Movement : MonoBehaviour {
 	float vSpeed;
 	float gunCooldown;
 	Vector3 speed;
+	Canvas inventoryGUI;
 
 	// Use this for initialization
 	void Start() {
 		buttonsPressed = new bool[buttons.Length];
+		inventoryGUI = GameObject.FindObjectOfType<Canvas>();
 		restart();
 	}
 
