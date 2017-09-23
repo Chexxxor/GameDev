@@ -8,9 +8,9 @@ public class Movement : MonoBehaviour {
 	public Transform gunRight;
     public Transform gunLeft;
     public Transform trans;
-    public Transform look;
-	public Inventory2 inventory;
-	public Canvas inventoryGUI;
+    public Camera cam;
+	//public Inventory2 inventory;
+	//public Canvas inventoryGUI;
 	public float startHeight;
 	public float gravity;
 	public float stepSize;
@@ -25,7 +25,7 @@ public class Movement : MonoBehaviour {
 	public int mass;
 
     enum ButtonLabel : int { FIRE, VERTICAL, HORIZONTAL, TURN, JUMP, INVENTORY, ALT_FIRE, RUN, LOOK };
-	readonly string[] buttons = { "Fire", "Vertical", "Horizontal", "Turn", "Jump", "Inventory", "2nd fire", "run", "Look" };
+	readonly string[] buttons = { "Fire", "Vertical", "Horizontal", "Turn", "Jump", "Inventory", "2nd fire", "Run", "Look" };
 	bool[] buttonsPressed;
 	bool canJump;
 	bool inventoryOpen;
@@ -33,10 +33,12 @@ public class Movement : MonoBehaviour {
 	float gunCooldown;
     float altCooldown;
 	Vector3 speed;
+	Canvas inventoryGUI;
 
 	// Use this for initialization
 	void Start() {
 		buttonsPressed = new bool[buttons.Length];
+		inventoryGUI = GameObject.FindObjectOfType<Canvas>();
 		restart();
 	}
 
@@ -77,7 +79,7 @@ public class Movement : MonoBehaviour {
 			speed = new Vector3(speed.x, vSpeed, speed.y);
 			// Rotating from mouse movement
 			trans.Rotate(new Vector3(0, 1, 0), Input.GetAxis("Turn") * turnRate * 0.0001f);
-            look.Rotate(Input.GetAxis("Look") * turnRate * 0.0001f, 0, 0);
+            cam.transform.Rotate(Input.GetAxis("Look") * turnRate * 0.0001f, 0, 0);
 		}
 	}
 
