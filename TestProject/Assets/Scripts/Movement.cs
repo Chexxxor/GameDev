@@ -6,6 +6,8 @@ public class Movement : MonoBehaviour {
 	public GameObject baseProjectile;
 	public Transform gunRight;
 	public Transform trans;
+	public Inventory2 inventory;
+	public Canvas inventoryGUI;
 	public float startHeight;
 	public float gravity;
 	public float stepSize;
@@ -15,10 +17,11 @@ public class Movement : MonoBehaviour {
 	public float projectileSpeed;
 	public int mass;
 
-	enum ButtonLabel : int { FIRE, VERTICAL, HORIZONTAL, TURN, JUMP };
-	readonly string[] buttons = { "Fire", "Vertical", "Horizontal", "Turn", "Jump" };
+	enum ButtonLabel : int { FIRE, VERTICAL, HORIZONTAL, TURN, JUMP, INVENTORY };
+	readonly string[] buttons = { "Fire", "Vertical", "Horizontal", "Turn", "Jump", "Inventory" };
 	bool[] buttonsPressed;
 	bool canJump;
+	bool inventoryOpen;
 	float vSpeed;
 	float gunCooldown;
 	Vector3 speed;
@@ -51,19 +54,21 @@ public class Movement : MonoBehaviour {
 	}
 
 	void doFixedActions() {
-		// Sets the axis vector to represent the analogue alignment of a joystick. +/- 1 for discrete keypresses.
-		Vector3 axis = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-		// Stops the input from generating a vector with magnitude greater than one, in case analogue sticks' input aren't perfectly circular
-		if(axis.magnitude > 1)
-			axis.Normalize();
-		// Calculates speed based on position after translation minus before translation
-		speed = trans.position;
-		trans.Translate(axis * stepSize * 0.1f);
-		speed = (trans.position - speed) / Time.fixedDeltaTime;
-		// Adds in the vSpeed
-		speed = new Vector3(speed.x, vSpeed, speed.y);
-		// Rotating from mouse movement
-		trans.Rotate(new Vector3(0, 1, 0), Input.GetAxis("Turn") * turnRate * 0.0001f);
+		if(!inventoryOpen) {
+			// Sets the axis vector to represent the analogue alignment of a joystick. +/- 1 for discrete keypresses.
+			Vector3 axis = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+			// Stops the input from generating a vector with magnitude greater than one, in case analogue sticks' input aren't perfectly circular
+			if(axis.magnitude > 1)
+				axis.Normalize();
+			// Calculates speed based on position after translation minus before translation
+			speed = trans.position;
+			trans.Translate(axis * stepSize * 0.1f);
+			speed = (trans.position - speed) / Time.fixedDeltaTime;
+			// Adds in the vSpeed
+			speed = new Vector3(speed.x, vSpeed, speed.y);
+			// Rotating from mouse movement
+			trans.Rotate(new Vector3(0, 1, 0), Input.GetAxis("Turn") * turnRate * 0.0001f);
+		}
 	}
 
 	void doActions() {
@@ -73,9 +78,15 @@ public class Movement : MonoBehaviour {
 		if(buttonsPressed[(int)ButtonLabel.JUMP]) {
 			jump();
 		}
+		if(buttonsPressed[(int)ButtonLabel.INVENTORY]) {
+			toggleInventory();
+			buttonsPressed[(int)ButtonLabel.INVENTORY] = false;
+		}
 	}
 
 	void restart() {
+		inventoryOpen = false;
+		inventoryGUI.enabled = false;
 		canJump = true;
 		vSpeed = 0.0f;
 		gunCooldown = 0.0f;
@@ -85,7 +96,7 @@ public class Movement : MonoBehaviour {
 	}
 
 	void fire() {
-		if(gunCooldown <= 0) {
+		if(!inventoryOpen && gunCooldown <= 0) {
 			// Instantiates a new projectile from the "guns" position, also inheriting it's rotation.
 			GameObject projectile = (GameObject)Instantiate(baseProjectile, gunRight.position, gunRight.rotation);
 			// Sets the projectile velocity as a sum of projectilespeed and the parent's calulated speed.
@@ -95,7 +106,7 @@ public class Movement : MonoBehaviour {
 	}
 
 	void jump() {
-		if(canJump) {
+		if(!inventoryOpen && canJump) {
 			// TODO: Use rigidbody instead
 			vSpeed = jumpForce / mass;
 			canJump = false;
@@ -119,6 +130,11 @@ public class Movement : MonoBehaviour {
 			// Updates the final vertical position
 			trans.position = new Vector3(trans.position.x, y, trans.position.z);
 		}
+	}
+
+	void toggleInventory() {
+		inventoryOpen = !inventoryOpen;
+		inventoryGUI.enabled = inventoryOpen;
 	}
 
 	/**
