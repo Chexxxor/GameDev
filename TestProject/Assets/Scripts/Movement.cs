@@ -4,33 +4,39 @@ using System;
 
 public class Movement : MonoBehaviour {
 	public GameObject baseProjectile;
+    public GameObject specialProjectile;
 	public Transform gunRight;
-	public Transform trans;
-	//public Inventory2 inventory;
-	//public Canvas inventoryGUI;
+    public Transform gunLeft;
+    public Transform trans;
+    public Transform look;
+	public Inventory2 inventory;
+	public Canvas inventoryGUI;
 	public float startHeight;
 	public float gravity;
 	public float stepSize;
+    public float runSpeed;
 	public float turnRate;
 	public float jumpForce;
 	public float fireCooldown;
+    public float altfireCooldown;
 	public float projectileSpeed;
+    public float specialProjectileSpeed;
+    public float bulletRotation;
 	public int mass;
 
-	enum ButtonLabel : int { FIRE, VERTICAL, HORIZONTAL, TURN, JUMP, INVENTORY };
-	readonly string[] buttons = { "Fire", "Vertical", "Horizontal", "Turn", "Jump", "Inventory" };
+    enum ButtonLabel : int { FIRE, VERTICAL, HORIZONTAL, TURN, JUMP, INVENTORY, ALT_FIRE, RUN, LOOK };
+	readonly string[] buttons = { "Fire", "Vertical", "Horizontal", "Turn", "Jump", "Inventory", "2nd fire", "run", "Look" };
 	bool[] buttonsPressed;
 	bool canJump;
 	bool inventoryOpen;
 	float vSpeed;
 	float gunCooldown;
+    float altCooldown;
 	Vector3 speed;
-	Canvas inventoryGUI;
 
 	// Use this for initialization
 	void Start() {
 		buttonsPressed = new bool[buttons.Length];
-		inventoryGUI = GameObject.FindObjectOfType<Canvas>();
 		restart();
 	}
 
@@ -64,12 +70,14 @@ public class Movement : MonoBehaviour {
 				axis.Normalize();
 			// Calculates speed based on position after translation minus before translation
 			speed = trans.position;
-			trans.Translate(axis * stepSize * 0.1f);
+            float movementSpeed = buttonsPressed[(int)ButtonLabel.RUN] ? runSpeed : stepSize;
+			trans.Translate(axis * movementSpeed * 0.1f);
 			speed = (trans.position - speed) / Time.fixedDeltaTime;
 			// Adds in the vSpeed
 			speed = new Vector3(speed.x, vSpeed, speed.y);
 			// Rotating from mouse movement
 			trans.Rotate(new Vector3(0, 1, 0), Input.GetAxis("Turn") * turnRate * 0.0001f);
+            look.Rotate(Input.GetAxis("Look") * turnRate * 0.0001f, 0, 0);
 		}
 	}
 
@@ -77,7 +85,11 @@ public class Movement : MonoBehaviour {
 		if(buttonsPressed[(int)ButtonLabel.FIRE]) {
 			fire();
 		}
-		if(buttonsPressed[(int)ButtonLabel.JUMP]) {
+        if (buttonsPressed[(int)ButtonLabel.ALT_FIRE])
+        {
+            altfire();
+        }
+        if (buttonsPressed[(int)ButtonLabel.JUMP]) {
 			jump();
 		}
 		if(buttonsPressed[(int)ButtonLabel.INVENTORY]) {
@@ -92,6 +104,7 @@ public class Movement : MonoBehaviour {
 		canJump = true;
 		vSpeed = 0.0f;
 		gunCooldown = 0.0f;
+        altCooldown = 0.0f;
 		for(int i = 0; i < buttonsPressed.Length; i++) {
 			buttonsPressed[i] = false;
 		}
@@ -107,7 +120,19 @@ public class Movement : MonoBehaviour {
 		}
 	}
 
-	void jump() {
+    void altfire() {
+        if (!inventoryOpen && altCooldown <= 0)
+        {
+            // Instantiates a new projectile from the "guns" position, also inheriting it's rotation.
+            GameObject projectile = (GameObject)Instantiate(specialProjectile, gunLeft.position, gunLeft.rotation);
+            // Sets the projectile velocity as a sum of projectilespeed and the parent's calulated speed.
+            projectile.GetComponent<Rigidbody>().velocity = trans.forward * specialProjectileSpeed + speed;
+            projectile.GetComponent<Rigidbody>().angularVelocity = new Vector3(0, bulletRotation, 0);
+            altCooldown = altfireCooldown;
+        }
+    }
+
+    void jump() {
 		if(!inventoryOpen && canJump) {
 			// TODO: Use rigidbody instead
 			vSpeed = jumpForce / mass;
@@ -146,5 +171,9 @@ public class Movement : MonoBehaviour {
 		if(gunCooldown > 0) {
 			gunCooldown -= Time.fixedDeltaTime;
 		}
-	}
+        if (altCooldown > 0)
+        {
+            altCooldown -= Time.fixedDeltaTime;
+        }
+    }
 }
