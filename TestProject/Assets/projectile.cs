@@ -11,7 +11,8 @@ public class projectile : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		rb.velocity = new Vector3(0, 0, baseSpeed);
+		trans.Translate(0, 0, GetComponent<SphereCollider>().bounds.extents.z);
+		//rb.velocity = new Vector3(0, 0, baseSpeed);
 	}
 
 	// Update is called at fixed times

@@ -12,6 +12,7 @@ public class Movement : MonoBehaviour {
 	public float turnRate;
 	public float jumpForce;
 	public float fireCooldown;
+	public float projectileSpeed;
 	public int mass;
 
 	enum ButtonLabel : int { FIRE, VERTICAL, HORIZONTAL, TURN, JUMP };
@@ -20,6 +21,7 @@ public class Movement : MonoBehaviour {
 	bool canJump;
 	float vSpeed;
 	float gunCooldown;
+	Vector3 speed;
 
 	// Use this for initialization
 	void Start() {
@@ -28,7 +30,7 @@ public class Movement : MonoBehaviour {
 	}
 
 	private void FixedUpdate() {
-		doCalculations();
+		doJumpCalculations();
 		doFixedActions();
 		cooldownTick();
 	}
@@ -49,10 +51,18 @@ public class Movement : MonoBehaviour {
 	}
 
 	void doFixedActions() {
+		// Sets the axis vector to represent the analogue alignment of a joystick. +/- 1 for discrete keypresses.
 		Vector3 axis = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+		// Stops the input from generating a vector with magnitude greater than one, in case analogue sticks' input aren't perfectly circular
 		if(axis.magnitude > 1)
 			axis.Normalize();
+		// Calculates speed based on position after translation minus before translation
+		speed = trans.position;
 		trans.Translate(axis * stepSize * 0.1f);
+		speed = (trans.position - speed) / Time.fixedDeltaTime;
+		// Adds in the vSpeed
+		speed = new Vector3(speed.x, vSpeed, speed.y);
+		// Rotating from mouse movement
 		trans.Rotate(new Vector3(0, 1, 0), Input.GetAxis("Turn") * turnRate * 0.0001f);
 	}
 
@@ -76,34 +86,44 @@ public class Movement : MonoBehaviour {
 
 	void fire() {
 		if(gunCooldown <= 0) {
+			// Instantiates a new projectile from the "guns" position, also inheriting it's rotation.
 			GameObject projectile = (GameObject)Instantiate(baseProjectile, gunRight.position, gunRight.rotation);
+			// Sets the projectile velocity as a sum of projectilespeed and the parent's calulated speed.
+			projectile.GetComponent<Rigidbody>().velocity = trans.forward * projectileSpeed + speed;
 			gunCooldown = fireCooldown;
 		}
 	}
 
 	void jump() {
 		if(canJump) {
-			Debug.Log("Jumping");
+			// TODO: Use rigidbody instead
 			vSpeed = jumpForce / mass;
 			canJump = false;
 		}
 	}
 
-	private void doCalculations() {
+	private void doJumpCalculations() {
 		if(vSpeed != 0 || trans.position.y != startHeight) {
 			if(trans.position.y > startHeight) {
+				// Reduces speed given the gravity magnitude
 				vSpeed -= gravity;
 			}
+			// Calculates new vertical position
 			float y = trans.position.y + vSpeed;
+			// Accounts for hitting the ground
 			if(y < startHeight) {
 				vSpeed = 0;
 				y = startHeight;
 				canJump = true;
 			}
+			// Updates the final vertical position
 			trans.position = new Vector3(trans.position.x, y, trans.position.z);
 		}
 	}
 
+	/**
+	 * Updates the cooldown counter for the gun(s).
+	 */
 	void cooldownTick() {
 		if(gunCooldown > 0) {
 			gunCooldown -= Time.fixedDeltaTime;
