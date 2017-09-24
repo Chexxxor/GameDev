@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System;
 
 public class Movement : MonoBehaviour {
 	public GameObject baseProjectile;
@@ -8,7 +6,7 @@ public class Movement : MonoBehaviour {
 	public Transform gunRight;
     public Transform gunLeft;
     public Transform trans;
-    public Camera cam;
+    Camera cam;
 	//public Inventory2 inventory;
 	//public Canvas inventoryGUI;
 	public float startHeight;
@@ -28,30 +26,36 @@ public class Movement : MonoBehaviour {
 	readonly string[] buttons = { "Fire", "Vertical", "Horizontal", "Turn", "Jump", "Inventory", "2nd fire", "Run", "Look" };
 	bool[] buttonsPressed;
 	bool canJump;
-	bool inventoryOpen;
 	float vSpeed;
 	float gunCooldown;
     float altCooldown;
 	Vector3 speed;
-	Canvas inventoryGUI;
+	Inventory inventory;
 
 	// Use this for initialization
 	void Start() {
+		if(!(cam = GetComponentInChildren<Camera>())) {
+			Debug.Log("Camera not attached, disabling vertical look");
+		}
+		if(!(inventory = GetComponent<Inventory>())) {
+			Debug.Log("Inventory not attached, disabling inventory menu");
+		}
 		buttonsPressed = new bool[buttons.Length];
-		inventoryGUI = GameObject.FindObjectOfType<Canvas>();
 		restart();
 	}
 
 	private void FixedUpdate() {
 		doJumpCalculations();
-		doFixedActions();
+		if(!inventory || !inventory.isInventoryOpen())
+			doFixedActions();
 		cooldownTick();
 	}
 
 	// Update is called once per frame
 	void Update() {
 		checkInput();
-		doActions();
+		if(!inventory || !inventory.isInventoryOpen())
+			doActions();
 	}
 
 	void checkInput() {
@@ -64,23 +68,22 @@ public class Movement : MonoBehaviour {
 	}
 
 	void doFixedActions() {
-		if(!inventoryOpen) {
-			// Sets the axis vector to represent the analogue alignment of a joystick. +/- 1 for discrete keypresses.
-			Vector3 axis = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-			// Stops the input from generating a vector with magnitude greater than one, in case analogue sticks' input aren't perfectly circular
-			if(axis.magnitude > 1)
-				axis.Normalize();
-			// Calculates speed based on position after translation minus before translation
-			speed = trans.position;
-            float movementSpeed = buttonsPressed[(int)ButtonLabel.RUN] ? runSpeed : stepSize;
-			trans.Translate(axis * movementSpeed * 0.1f);
-			speed = (trans.position - speed) / Time.fixedDeltaTime;
-			// Adds in the vSpeed
-			speed = new Vector3(speed.x, vSpeed, speed.y);
-			// Rotating from mouse movement
-			trans.Rotate(new Vector3(0, 1, 0), Input.GetAxis("Turn") * turnRate * 0.0001f);
+		// Sets the axis vector to represent the analogue alignment of a joystick. +/- 1 for discrete keypresses.
+		Vector3 axis = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+		// Stops the input from generating a vector with magnitude greater than one, in case analogue sticks' input aren't perfectly circular
+		if(axis.magnitude > 1)
+			axis.Normalize();
+		// Calculates speed based on position after translation minus before translation
+		speed = trans.position;
+        float movementSpeed = buttonsPressed[(int)ButtonLabel.RUN] ? runSpeed : stepSize;
+		trans.Translate(axis * movementSpeed * 0.1f);
+		speed = (trans.position - speed) / Time.fixedDeltaTime;
+		// Adds in the vSpeed
+		speed = new Vector3(speed.x, vSpeed, speed.y);
+		// Rotating from mouse movement
+		trans.Rotate(new Vector3(0, 1, 0), Input.GetAxis("Turn") * turnRate * 0.0001f);
+		if(cam)
             cam.transform.Rotate(Input.GetAxis("Look") * turnRate * 0.0001f, 0, 0);
-		}
 	}
 
 	void doActions() {
@@ -94,15 +97,9 @@ public class Movement : MonoBehaviour {
         if (buttonsPressed[(int)ButtonLabel.JUMP]) {
 			jump();
 		}
-		if(buttonsPressed[(int)ButtonLabel.INVENTORY]) {
-			toggleInventory();
-			buttonsPressed[(int)ButtonLabel.INVENTORY] = false;
-		}
 	}
 
 	void restart() {
-		inventoryOpen = false;
-		inventoryGUI.enabled = false;
 		canJump = true;
 		vSpeed = 0.0f;
 		gunCooldown = 0.0f;
@@ -113,7 +110,7 @@ public class Movement : MonoBehaviour {
 	}
 
 	void fire() {
-		if(!inventoryOpen && gunCooldown <= 0) {
+		if(gunCooldown <= 0) {
 			// Instantiates a new projectile from the "guns" position, also inheriting it's rotation.
 			GameObject projectile = (GameObject)Instantiate(baseProjectile, gunRight.position, gunRight.rotation);
 			// Sets the projectile velocity as a sum of projectilespeed and the parent's calulated speed.
@@ -123,7 +120,7 @@ public class Movement : MonoBehaviour {
 	}
 
     void altfire() {
-        if (!inventoryOpen && altCooldown <= 0)
+        if (altCooldown <= 0)
         {
             // Instantiates a new projectile from the "guns" position, also inheriting it's rotation.
             GameObject projectile = (GameObject)Instantiate(specialProjectile, gunLeft.position, gunLeft.rotation);
@@ -135,7 +132,7 @@ public class Movement : MonoBehaviour {
     }
 
     void jump() {
-		if(!inventoryOpen && canJump) {
+		if(canJump) {
 			// TODO: Use rigidbody instead
 			vSpeed = jumpForce / mass;
 			canJump = false;
@@ -159,11 +156,6 @@ public class Movement : MonoBehaviour {
 			// Updates the final vertical position
 			trans.position = new Vector3(trans.position.x, y, trans.position.z);
 		}
-	}
-
-	void toggleInventory() {
-		inventoryOpen = !inventoryOpen;
-		inventoryGUI.enabled = inventoryOpen;
 	}
 
 	/**
