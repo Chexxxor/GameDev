@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
 
 public class projectile : MonoBehaviour {
-	public Player owner;
 	public Transform trans;
 	public Rigidbody rb;
+	public Player owner;
 	public float baseSpeed = 2;
 	public float lifespan = 10;
-	public Harvestable harvestable;
 
 	private float age;
 
@@ -23,14 +22,11 @@ public class projectile : MonoBehaviour {
 			Destroy(gameObject);
 	}
 
-	// Update is called once per frame
-	void Update () {
-	
-	}
-
 	private void OnCollisionEnter(Collision collision) {
-		if(collision.gameObject.CompareTag("Harvestable")) {
-			owner.harvest(collision.gameObject.GetComponent<Harvestable>());
+		Harvestable harvestable = collision.gameObject.GetComponent<Harvestable>();
+		if(harvestable && owner) {
+			owner.harvest(harvestable);
+			Destroy(gameObject);
 		}
 	}
 }

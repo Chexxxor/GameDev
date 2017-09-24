@@ -1,34 +1,29 @@
 ﻿using UnityEngine;
 
-public class Movement : MonoBehaviour {
+public class RigidMovement : MonoBehaviour {
 	public GameObject baseProjectile;
     public GameObject specialProjectile;
 	public Transform gunRight;
     public Transform gunLeft;
-    Transform trans;
 
 	Camera cam;
-	public float startHeight;
-	public float gravity;
-	public float stepSize;
-    public float runSpeed;
-	public float turnRate;
-	public float jumpForce;
-	public float fireCooldown;
-    public float altfireCooldown;
-	public float projectileSpeed;
-    public float specialProjectileSpeed;
-    public float bulletRotation;
-	public int mass;
+	public float gravity = 20.0f;
+	public float walkSpeed = 3.0f;
+    public float runSpeed = 5.0f;
+	public float turnRate = 5.0f;
+	public float jumpSpeed = 8.0f;
+	public float fireCooldown = 0.2f;
+    public float altfireCooldown = 1.0f;
+	public float projectileSpeed = 30.0f;
+    public float specialProjectileSpeed = 10.0f;
+    public float bulletRotation = 0.0f;
 
     enum ButtonLabel : int { FIRE, VERTICAL, HORIZONTAL, TURN, JUMP, INVENTORY, ALT_FIRE, RUN, LOOK };
 	readonly string[] buttons = { "Fire", "Vertical", "Horizontal", "Turn", "Jump", "Inventory", "2nd fire", "Run", "Look" };
 	bool[] buttonsPressed;
-	bool canJump;
-	float vSpeed;
 	float gunCooldown;
     float altCooldown;
-	Vector3 speed;
+	Vector3 moveDirection = Vector3.zero;
 	Inventory inventory;
 
 	// Use this for initialization
@@ -39,15 +34,13 @@ public class Movement : MonoBehaviour {
 		if(!(inventory = GetComponent<Inventory>())) {
 			Debug.Log("Inventory not attached, disabling inventory menu");
 		}
-		trans = GetComponent<Transform>();
 		buttonsPressed = new bool[buttons.Length];
 		restart();
 	}
 
 	private void FixedUpdate() {
-		doJumpCalculations();
 		if(!inventory || !inventory.isInventoryOpen())
-			doFixedActions();
+			turning();
 		cooldownTick();
 	}
 
@@ -56,6 +49,7 @@ public class Movement : MonoBehaviour {
 		checkInput();
 		if(!inventory || !inventory.isInventoryOpen())
 			doActions();
+		movement();
 	}
 
 	void checkInput() {
@@ -67,21 +61,27 @@ public class Movement : MonoBehaviour {
 		}
 	}
 
-	void doFixedActions() {
-		// Sets the axis vector to represent the analogue alignment of a joystick. +/- 1 for discrete keypresses.
-		Vector3 axis = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-		// Stops the input from generating a vector with magnitude greater than one, in case analogue sticks' input aren't perfectly circular
-		if(axis.magnitude > 1)
-			axis.Normalize();
-		// Calculates speed based on position after translation minus before translation
-		speed = trans.position;
-        float movementSpeed = buttonsPressed[(int)ButtonLabel.RUN] ? runSpeed : stepSize;
-		trans.Translate(axis * movementSpeed * 0.1f);
-		speed = (trans.position - speed) / Time.fixedDeltaTime;
-		// Adds in the vSpeed
-		speed = new Vector3(speed.x, vSpeed, speed.y);
+	void movement() {
+		CharacterController controller = GetComponent<CharacterController>();
+		if(controller.isGrounded && (!inventory || !inventory.isInventoryOpen())) {
+			// Sets the axis vector to represent the analogue alignment of a joystick. +/- 1 for discrete keypresses.
+			moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+			// Stops the input from generating a vector with magnitude greater than one, in case analogue sticks' input aren't perfectly circular
+			if(moveDirection.magnitude > 1)
+				moveDirection.Normalize();
+			float movementSpeed = buttonsPressed[(int)ButtonLabel.RUN] ? runSpeed : walkSpeed;
+			moveDirection = transform.TransformDirection(moveDirection) * movementSpeed;
+			if(Input.GetButtonDown("Jump"))
+				moveDirection.y = jumpSpeed;
+		}
+		moveDirection.y -= gravity * Time.deltaTime;
+		controller.Move(moveDirection * Time.deltaTime);
+	}
+
+	void turning() {
 		// Rotating from mouse movement
-		trans.Rotate(new Vector3(0, 1, 0), Input.GetAxis("Turn") * turnRate * 0.0001f);
+		transform.Rotate(new Vector3(0, 1, 0), Input.GetAxis("Turn") * turnRate * 0.0001f);
+		//GetComponent<Rigidbody>().AddTorque(0, Input.GetAxis("Turn") * turnRate * 0.0001f, 0);
 		if(cam)
             cam.transform.Rotate(Input.GetAxis("Look") * turnRate * 0.0001f, 0, 0);
 	}
@@ -94,14 +94,9 @@ public class Movement : MonoBehaviour {
         {
             altfire();
         }
-        if (buttonsPressed[(int)ButtonLabel.JUMP]) {
-			jump();
-		}
 	}
 
 	void restart() {
-		canJump = true;
-		vSpeed = 0.0f;
 		gunCooldown = 0.0f;
         altCooldown = 0.0f;
 		for(int i = 0; i < buttonsPressed.Length; i++) {
@@ -114,7 +109,7 @@ public class Movement : MonoBehaviour {
 			// Instantiates a new projectile from the "guns" position, also inheriting it's rotation.
 			GameObject projectile = (GameObject)Instantiate(baseProjectile, gunRight.position, gunRight.rotation);
 			// Sets the projectile velocity as a sum of projectilespeed and the parent's calulated speed.
-			projectile.GetComponent<Rigidbody>().velocity = trans.forward * projectileSpeed + speed;
+			projectile.GetComponent<Rigidbody>().velocity = transform.forward * projectileSpeed + moveDirection;
 			projectile.GetComponent<projectile>().owner = GetComponent<Player>();
 			gunCooldown = fireCooldown;
 		}
@@ -126,38 +121,12 @@ public class Movement : MonoBehaviour {
             // Instantiates a new projectile from the "guns" position, also inheriting it's rotation.
             GameObject projectile = (GameObject)Instantiate(specialProjectile, gunLeft.position, gunLeft.rotation);
             // Sets the projectile velocity as a sum of projectilespeed and the parent's calulated speed.
-            projectile.GetComponent<Rigidbody>().velocity = trans.forward * specialProjectileSpeed + speed;
+            projectile.GetComponent<Rigidbody>().velocity = transform.forward * specialProjectileSpeed + moveDirection;
             projectile.GetComponent<Rigidbody>().angularVelocity = new Vector3(0, bulletRotation, 0);
-            altCooldown = altfireCooldown;
+			projectile.GetComponent<projectile>().owner = GetComponent<Player>();
+			altCooldown = altfireCooldown;
         }
     }
-
-    void jump() {
-		if(canJump) {
-			// TODO: Use rigidbody instead
-			vSpeed = jumpForce / mass;
-			canJump = false;
-		}
-	}
-
-	private void doJumpCalculations() {
-		if(vSpeed != 0 || trans.position.y != startHeight) {
-			if(trans.position.y > startHeight) {
-				// Reduces speed given the gravity magnitude
-				vSpeed -= gravity;
-			}
-			// Calculates new vertical position
-			float y = trans.position.y + vSpeed;
-			// Accounts for hitting the ground
-			if(y < startHeight) {
-				vSpeed = 0;
-				y = startHeight;
-				canJump = true;
-			}
-			// Updates the final vertical position
-			trans.position = new Vector3(trans.position.x, y, trans.position.z);
-		}
-	}
 
 	/**
 	 * Updates the cooldown counter for the gun(s).

@@ -11,6 +11,7 @@ public class Inventory : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		Cursor.lockState = CursorLockMode.Locked;
 		inventoryGUI = GameObject.FindObjectOfType<Canvas>();
 		if(!inventoryGUI) {
 
@@ -41,5 +42,6 @@ public class Inventory : MonoBehaviour {
 	void toggleInventory() {
 		inventoryOpen = !inventoryOpen;
 		inventoryGUI.enabled = inventoryOpen;
+		Cursor.lockState = inventoryOpen ? CursorLockMode.None : CursorLockMode.Locked;
 	}
 }

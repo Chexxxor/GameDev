@@ -11,6 +11,7 @@ public class Player : MonoBehaviour {
 	}
 
 	public void harvest(Harvestable harvestable) {
-		inventory.addItem(harvestable.getItem(), harvestable.harvest(this));
+		if(inventory)
+			inventory.addItem(harvestable.getItem(), harvestable.harvest(this));
 	}
 }
