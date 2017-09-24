@@ -242,6 +242,6 @@ ModelManifest.xml
 */Temp
 */Library
 */obj
-*/Assets/Scenes
+#*/Assets/Scenes
 *.*proj
 *.sln
