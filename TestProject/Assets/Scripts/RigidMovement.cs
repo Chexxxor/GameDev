@@ -5,8 +5,9 @@ public class RigidMovement : MonoBehaviour {
     public GameObject specialProjectile;
 	public Transform gunRight;
     public Transform gunLeft;
+    public Camera cam;
+    public Camera cam2;
 
-	Camera cam;
 	public float gravity = 20.0f;
 	public float walkSpeed = 3.0f;
     public float runSpeed = 5.0f;
@@ -18,9 +19,10 @@ public class RigidMovement : MonoBehaviour {
     public float specialProjectileSpeed = 10.0f;
     public float bulletRotation = 0.0f;
 
-    enum ButtonLabel : int { FIRE, VERTICAL, HORIZONTAL, TURN, JUMP, INVENTORY, ALT_FIRE, RUN, LOOK };
-	readonly string[] buttons = { "Fire", "Vertical", "Horizontal", "Turn", "Jump", "Inventory", "2nd fire", "Run", "Look" };
+    enum ButtonLabel : int { FIRE, VERTICAL, HORIZONTAL, TURN, JUMP, INVENTORY, ALT_FIRE, RUN, LOOK, POV };
+	readonly string[] buttons = { "Fire", "Vertical", "Horizontal", "Turn", "Jump", "Inventory", "2nd fire", "Run", "Look", "pov" };
 	bool[] buttonsPressed;
+    bool tpCamChange = false;
 	float gunCooldown;
     float altCooldown;
 	Vector3 moveDirection = Vector3.zero;
@@ -36,6 +38,8 @@ public class RigidMovement : MonoBehaviour {
 		}
 		buttonsPressed = new bool[buttons.Length];
 		restart();
+        cam.gameObject.SetActive(!tpCamChange);
+        cam.gameObject.SetActive(tpCamChange);
 	}
 
 	private void FixedUpdate() {
@@ -94,6 +98,9 @@ public class RigidMovement : MonoBehaviour {
         {
             altfire();
         }
+        if (Input.GetButtonDown ("pov")) {
+            changeCam();
+        }
 	}
 
 	void restart() {
@@ -139,5 +146,12 @@ public class RigidMovement : MonoBehaviour {
         {
             altCooldown -= Time.fixedDeltaTime;
         }
+    }
+    void changeCam()
+    {
+        tpCamChange = !tpCamChange;
+        cam.gameObject.SetActive(!tpCamChange);
+        cam2.gameObject.SetActive(tpCamChange);
+           
     }
 }
