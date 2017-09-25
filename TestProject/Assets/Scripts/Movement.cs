@@ -9,6 +9,7 @@ public class Movement : MonoBehaviour {
     public Transform gunLeft;
     public Transform trans;
     public Camera cam;
+    public Camera cam2;
 	//public Inventory2 inventory;
 	//public Canvas inventoryGUI;
 	public float startHeight;
@@ -24,11 +25,12 @@ public class Movement : MonoBehaviour {
     public float bulletRotation;
 	public int mass;
 
-    enum ButtonLabel : int { FIRE, VERTICAL, HORIZONTAL, TURN, JUMP, INVENTORY, ALT_FIRE, RUN, LOOK };
-	readonly string[] buttons = { "Fire", "Vertical", "Horizontal", "Turn", "Jump", "Inventory", "2nd fire", "Run", "Look" };
+    enum ButtonLabel : int { FIRE, VERTICAL, HORIZONTAL, TURN, JUMP, INVENTORY, ALT_FIRE, RUN, LOOK, POV };
+	readonly string[] buttons = { "Fire", "Vertical", "Horizontal", "Turn", "Jump", "Inventory", "2nd fire", "Run", "Look", "pov" };
 	bool[] buttonsPressed;
 	bool canJump;
 	bool inventoryOpen;
+    bool tpCamActive = false;
 	float vSpeed;
 	float gunCooldown;
     float altCooldown;
@@ -40,12 +42,14 @@ public class Movement : MonoBehaviour {
 		buttonsPressed = new bool[buttons.Length];
 		inventoryGUI = GameObject.FindObjectOfType<Canvas>();
 		restart();
+        cam.gameObject.SetActive(!tpCamActive);
+        cam2.gameObject.SetActive(tpCamActive);
 	}
 
 	private void FixedUpdate() {
 		doJumpCalculations();
-		doFixedActions();
 		cooldownTick();
+        doFixedActions();
 	}
 
 	// Update is called once per frame
@@ -98,6 +102,9 @@ public class Movement : MonoBehaviour {
 			toggleInventory();
 			buttonsPressed[(int)ButtonLabel.INVENTORY] = false;
 		}
+        if (Input.GetButtonDown("pov")) {
+            changeCam();
+        }
 	}
 
 	void restart() {
@@ -177,5 +184,12 @@ public class Movement : MonoBehaviour {
         {
             altCooldown -= Time.fixedDeltaTime;
         }
+    }
+
+    void changeCam()
+    {
+        tpCamActive = !tpCamActive;
+        cam.gameObject.SetActive(!tpCamActive);
+        cam2.gameObject.SetActive(tpCamActive);
     }
 }
