@@ -5,17 +5,17 @@ public class Movement : MonoBehaviour {
     public GameObject specialProjectile;
 	public Transform gunRight;
     public Transform gunLeft;
-<<<<<<< HEAD
-    public Transform trans;
+
+    
     public Camera cam;
     public Camera cam2;
 	//public Inventory2 inventory;
 	//public Canvas inventoryGUI;
-=======
+
     Transform trans;
 
-	Camera cam;
->>>>>>> 9ad8a65c59fc4bd28bd3911de62bb93650006657
+	
+
 	public float startHeight;
 	public float gravity;
 	public float stepSize;
@@ -33,11 +33,7 @@ public class Movement : MonoBehaviour {
 	readonly string[] buttons = { "Fire", "Vertical", "Horizontal", "Turn", "Jump", "Inventory", "2nd fire", "Run", "Look", "pov" };
 	bool[] buttonsPressed;
 	bool canJump;
-<<<<<<< HEAD
-	bool inventoryOpen;
     bool tpCamActive = false;
-=======
->>>>>>> 9ad8a65c59fc4bd28bd3911de62bb93650006657
 	float vSpeed;
 	float gunCooldown;
     float altCooldown;
@@ -61,11 +57,6 @@ public class Movement : MonoBehaviour {
 
 	private void FixedUpdate() {
 		doJumpCalculations();
-<<<<<<< HEAD
-=======
-		if(!inventory || !inventory.isInventoryOpen())
-			doFixedActions();
->>>>>>> 9ad8a65c59fc4bd28bd3911de62bb93650006657
 		cooldownTick();
         doFixedActions();
 	}
@@ -116,16 +107,9 @@ public class Movement : MonoBehaviour {
         if (buttonsPressed[(int)ButtonLabel.JUMP]) {
 			jump();
 		}
-<<<<<<< HEAD
-		if(buttonsPressed[(int)ButtonLabel.INVENTORY]) {
-			toggleInventory();
-			buttonsPressed[(int)ButtonLabel.INVENTORY] = false;
-		}
         if (Input.GetButtonDown("pov")) {
             changeCam();
         }
-=======
->>>>>>> 9ad8a65c59fc4bd28bd3911de62bb93650006657
 	}
 
 	void restart() {
