@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+<<<<<<< HEAD:TestProject/Assets/Prefabs/new bullet.prefab.meta
+guid: 8f0f10dee348889428e7684151383b38
+timeCreated: 1506211980
+=======
+guid: 455e5e0ed441d1d47998f9d793f69b8f
+timeCreated: 1506344262
+>>>>>>> 9ad8a65c59fc4bd28bd3911de62bb93650006657:TestProject/Assets/Prefabs/PlayerDog.prefab.meta
+licenseType: Free
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
