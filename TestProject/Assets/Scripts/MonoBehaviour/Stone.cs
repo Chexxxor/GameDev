@@ -5,11 +5,19 @@ public class Stone : Harvestable {
 	public int minAmount;
 	public int maxAmount;
 
-	public override int harvest(Player player) {
-		return Random.Range(minAmount, maxAmount);
+	public override Inventory.ITEM Item {
+		get {
+			return Inventory.ITEM.STONE;
+		}
 	}
 
-	public override Inventory.ITEM getItem() {
-		return Inventory.ITEM.STONE;
+	public override string Name {
+		get {
+			return "Stone";
+		}
+	}
+
+	public override int Harvest(Player player) {
+		return Random.Range(minAmount, maxAmount);
 	}
 }

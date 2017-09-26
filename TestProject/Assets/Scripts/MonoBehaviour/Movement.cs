@@ -128,7 +128,7 @@ public class Movement : MonoBehaviour {
 			GameObject projectile = (GameObject)Instantiate(baseProjectile, gunRight.position, gunRight.rotation);
 			// Sets the projectile velocity as a sum of projectilespeed and the parent's calulated speed.
 			projectile.GetComponent<Rigidbody>().velocity = trans.forward * projectileSpeed + speed;
-			projectile.GetComponent<projectile>().owner = GetComponent<Player>();
+			projectile.GetComponent<Projectile>().owner = GetComponent<Player>();
 			gunCooldown = fireCooldown;
 		}
 	}

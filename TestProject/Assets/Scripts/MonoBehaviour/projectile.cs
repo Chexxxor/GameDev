@@ -1,18 +1,19 @@
 ﻿using UnityEngine;
 
-public class projectile : MonoBehaviour {
-	public Transform trans;
-	public Rigidbody rb;
+public class Projectile : MonoBehaviour {
 	public Player owner;
-	public float baseSpeed = 2;
 	public float lifespan = 10;
 
 	private float age;
 
 	// Use this for initialization
 	void Start () {
-		trans.Translate(0, 0, GetComponent<Collider>().bounds.extents.z);
-		//rb.velocity = new Vector3(0, 0, baseSpeed);
+		// TODO: Make a child class for other collider types
+		CapsuleCollider collider;
+		if(collider = GetComponentInChildren<CapsuleCollider>())
+			transform.Translate(0, 0, collider.height);
+		else
+			Debug.Log("Projectile has no collider, consider adding one.");
 	}
 
 	// Update is called at fixed times

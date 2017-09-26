@@ -1,16 +1,24 @@
 ﻿using UnityEngine;
 
 public class TreeScript : Harvestable {
-	public static Sprite icon;
+	private static readonly Sprite icon;
 	public static string text = "Tree";
-	public int minAmount;
-	public int maxAmount;
+	public static int minAmount;
+	public static int maxAmount;
 
-	public override int harvest(Player player) {
+	public override int Harvest(Player player) {
 		return Random.Range(minAmount, maxAmount);
 	}
 
-	public override Inventory.ITEM getItem() {
-		return Inventory.ITEM.TREE;
+	public override Inventory.ITEM Item {
+		get{
+			return Inventory.ITEM.TREE;
+		}
+	}
+
+	public override string Name {
+		get {
+			return text;
+		}
 	}
 }
