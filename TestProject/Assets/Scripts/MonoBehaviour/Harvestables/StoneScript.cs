@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
-public class Stone : Harvestable {
+public class StoneScript : Harvestable {
 	public static Sprite icon;
-	public int minAmount;
-	public int maxAmount;
+	public int minAmount = 1;
+	public int maxAmount = 3;
 
 	public override Inventory.ITEM Item {
 		get {
@@ -17,7 +17,7 @@ public class Stone : Harvestable {
 		}
 	}
 
-	public override int Harvest(Player player) {
+	public override int HarvestSpecific(Player player) {
 		return Random.Range(minAmount, maxAmount);
 	}
 }

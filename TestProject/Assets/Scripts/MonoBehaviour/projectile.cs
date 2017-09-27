@@ -3,6 +3,9 @@
 public class Projectile : MonoBehaviour {
 	public Player owner;
 	public float lifespan = 10;
+	public int baseDamage = 25;
+	public float critFactor = 2;
+	public float glanceFactor = 0.5f;
 
 	private float age;
 
@@ -11,7 +14,7 @@ public class Projectile : MonoBehaviour {
 		// TODO: Make a child class for other collider types
 		CapsuleCollider collider;
 		if(collider = GetComponentInChildren<CapsuleCollider>())
-			transform.Translate(0, 0, collider.height);
+			transform.Translate(0, 0, collider.height / 2);
 		else
 			Debug.Log("Projectile has no collider, consider adding one.");
 	}

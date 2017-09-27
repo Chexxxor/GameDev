@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
 
 public class TreeScript : Harvestable {
-	private static readonly Sprite icon;
-	public static string text = "Tree";
-	public static int minAmount;
-	public static int maxAmount;
+	public static Sprite icon;
+	public int minAmount = 1;
+	public int maxAmount = 3;
 
-	public override int Harvest(Player player) {
+	public override int HarvestSpecific(Player player) {
 		return Random.Range(minAmount, maxAmount);
 	}
 
@@ -18,7 +17,7 @@ public class TreeScript : Harvestable {
 
 	public override string Name {
 		get {
-			return text;
+			return "Tree";
 		}
 	}
 }

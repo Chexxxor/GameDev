@@ -37,7 +37,7 @@ public class WeaponSystem : MonoBehaviour {
 	bool hasRigidMovementScript = true;
 
 	private void Awake() {
-		if(GetComponent<Player>()) {
+		if(!(GetComponent<Player>())) {
 			Debug.Log("No Player script found, cannot give projectile a owner reference.");
 			hasPlayerScript = false;
 		}
