@@ -111,7 +111,7 @@ public class WeaponSystem : MonoBehaviour {
 	}
 
 	void fireLeft() {
-		if(leftAmmo <= 0) {
+		if(leftCooldown <= 0) {
 			// Return if no ammo, ammo == -1 ignores these if statements
 			if(leftAmmo == 0)
 				return; // Out of ammo
