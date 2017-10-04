@@ -1,0 +1,12 @@
+Healthbar position tweak
+Vertical look
+Synchronized health change
+Projectile lifespan
+Projectile gravity
+Movement when dead
+Camera destruction on disconnect
+Landscape
+Health bar scaling to 0
+Color change health bar
+Jumping when downhill
+Fix gun position
