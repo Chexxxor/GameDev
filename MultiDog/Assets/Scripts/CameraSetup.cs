@@ -7,29 +7,31 @@ public class CameraSetup : NetworkBehaviour {
 	public Vector3 relativePos;
 	public Vector3 relativeRot;
 
-	Camera localCamera;
+	Camera sceneCamera;
 
 	// Use this for initialization
 	void Start () {
 		if(!isLocalPlayer)
 			return;
-		if(localCamera = FindObjectOfType<Camera>())
-			localCamera.transform.SetParent(transform);
-		else {
-			// If no camera
-			Debug.Log("No camera found");
+		sceneCamera = Camera.main;
+		if (!sceneCamera)
+		{
+			Debug.Log("No camera in scene.");
+			return;
 		}
+		Camera localCamera = Instantiate(sceneCamera);
+		localCamera.transform.SetParent(transform);
 		localCamera.transform.localPosition = relativePos;
 		Quaternion quaternion = new Quaternion();
 		quaternion.eulerAngles = relativeRot;
 		localCamera.transform.localRotation = quaternion;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+
+		sceneCamera.gameObject.SetActive(false);
+		//localCamera.enabled = true;
 	}
 
-	private void OnDestroy() {
+	private void OnDestroy()
+	{
+		sceneCamera.gameObject.SetActive(true);
 	}
 }

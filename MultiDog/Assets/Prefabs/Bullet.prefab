@@ -195,7 +195,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   owner: 0
-  lifespan: 200
+  lifespan: 10
   baseDamage: 5
   critFactor: 2
   glanceFactor: 0.5

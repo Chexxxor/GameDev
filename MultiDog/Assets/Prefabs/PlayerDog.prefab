@@ -458,10 +458,12 @@ MonoBehaviour:
     type: 2}
   gunRight: {fileID: 4146911239904874}
   gunLeft: {fileID: 4908564427157992}
+  zeroingText: {fileID: 0}
+  zeroingDistances: 19000000320000004b00000000000000
   leftBaseCooldown: 0.2
   rightBaseCooldown: 0.2
-  leftBulletSpeed: 30
-  rightBulletSpeed: 30
+  leftBulletSpeed: 50
+  rightBulletSpeed: 50
   leftBulletRotation: 0
   rightBulletRotation: 0
   leftAmmo: -1
