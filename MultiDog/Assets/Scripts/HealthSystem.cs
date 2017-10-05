@@ -14,7 +14,6 @@ public class HealthSystem : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
 		if(!(gameOverText = FindObjectOfType<Text>())) {
 			Debug.Log("Couldn't find text object for Game Over text!");
 			useText = false;
@@ -36,15 +35,15 @@ public class HealthSystem : NetworkBehaviour {
 			Projectile projectile = other.GetComponent<Projectile>();
 			if (projectile)
 			{
-				RpcDamage(projectile);
+				RpcDamage(projectile.baseDamage);
 				Destroy(projectile.gameObject);
 			}
 		}
 	}
 
 	[ClientRpc]
-	private void RpcDamage(Projectile projectile) {
-		currentHealth -= projectile.baseDamage;
+	private void RpcDamage(int damage) {
+		currentHealth -= damage;
 		if(useBar) {
 			bar.ScaleBar(currentHealth / (float)maxHealth);
 		}
